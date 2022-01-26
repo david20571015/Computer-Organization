@@ -1,10 +1,11 @@
 //========================================
-//  version 2
-//  released: 2021.12.24
-//  pattern for pipeline
+//  version demo
+//  released: 2022.1.26
+//  pattern for non-pipeline
 //========================================
 
 `define CYCLE_TIME 10
+`timescale 1ns/10ps
 module PATTERN_p(
     // Output Signals
     clk,
@@ -30,10 +31,10 @@ input wire [31:0] inst_addr;
 // parameters & integer
 //================================================================
 
-integer execution_num=140,out_max_latency=10,seed=64;
+integer execution_num=325,out_max_latency=10,seed=64;
 integer i,t,latency,out_valid_counter,in_valid_counter,golden_inst_addr_in,golden_inst_addr_out;
 integer opcode,rs,rt,rd,shamt,func,immediate;
-integer instruction [144:0];
+integer instruction [306:0];
 integer golden_r [31:0];
 integer mem [4095:0];
 
@@ -52,7 +53,7 @@ always #(CYCLE/2.0) clk = ~clk;
 initial begin
 
     // read data mem & instrction
-    $readmemh("instruction.txt",instruction);
+    $readmemh("instruction_demo.txt",instruction);
     $readmemh("mem.txt",mem);
 
     // initialize control signal 
@@ -409,13 +410,13 @@ endtask
 task display_fail_task; begin
 
         $display("\n");
-        $display("        ----------------------------");
-        $display("        --                        --");
-        $display("        --  OOPS!!                --");
-        $display("        --                        --");
-        $display("        --  Simulation Failed!!   --");
-        $display("        --                        --");
-        $display("        ----------------------------");
+        $display("        ----------------------------               ");
+        $display("        --                        --       |\__||  ");
+        $display("        --  OOPS!!                --      / X,X  | ");
+        $display("        --                        --    /_____   | ");
+        $display("        --  \033[0;31mSimulation Failed!!\033[m   --   /^ ^ ^ \\  |");
+        $display("        --                        --  |^ ^ ^ ^ |w| ");
+        $display("        ----------------------------   \\m___m__|_|");
         $display("\n");
 end 
 endtask
@@ -424,13 +425,13 @@ endtask
 task display_pass_task; begin
 
         $display("\n");
-        $display("        ----------------------------");
-        $display("        --                        --");
-        $display("        --  Congratulations !!    --");
-        $display("        --                        --");
-        $display("        --  Simulation PASS!!     --");
-        $display("        --                        --");
-        $display("        ----------------------------");
+        $display("        ----------------------------               ");
+        $display("        --                        --       |\__||  ");
+        $display("        --  Congratulations !!    --      / O.O  | ");
+        $display("        --                        --    /_____   | ");
+        $display("        --  \033[0;32mSimulation PASS!!\033[m     --   /^ ^ ^ \\  |");
+        $display("        --                        --  |^ ^ ^ ^ |w| ");
+        $display("        ----------------------------   \\m___m__|_|");
         $display("\n");
 		repeat(2) @(negedge clk);
 		$finish;

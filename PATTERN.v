@@ -1,10 +1,11 @@
 //========================================
-//  version 2
-//  released: 2021.12.24
+//  version demo
+//  released: 2022.1.26
 //  pattern for non-pipeline
 //========================================
 
 `define CYCLE_TIME 10
+`timescale 1ns/10ps
 module PATTERN(
     // Output Signals
     clk,
@@ -30,10 +31,10 @@ input wire [31:0] inst_addr;
 // parameters & integer
 //================================================================
 
-integer pat_num=140,out_max_latency=10,seed=64;
-integer i,t,pat,out_counter,golden_inst_addr,test_1,test_2;
+integer pat_num=325,out_max_latency=10,seed=64;
+integer i,t,pat,out_counter,golden_inst_addr;
 integer opcode,rs,rt,rd,shamt,func,immediate;
-integer instruction [144:0];
+integer instruction [306:0];
 integer golden_r [31:0];
 integer mem [4095:0];
 
@@ -52,7 +53,7 @@ always #(CYCLE/2.0) clk = ~clk;
 initial begin
 
     // read data mem & instrction
-    $readmemh("instruction.txt",instruction);
+    $readmemh("instruction_demo.txt",instruction);
     $readmemh("mem.txt",mem);
 
     // initialize control signal 
@@ -142,6 +143,20 @@ task input_task; begin
         $display("************************************************************");     
         $display("*  out_vaild should not be high for 2 cycle    at %8t  *",$time);
         $display("************************************************************");
+        repeat(2) @(negedge clk);
+        $finish;
+
+    end
+    
+    // check inst_addr
+    if(inst_addr!==golden_inst_addr)begin
+        
+        display_fail_task;
+        $display("-------------------------------------------------------------------");
+        $display("*                        PATTERN NO.%4d 	                  *",pat);
+        $display("*                          inst_addr  error 	                       *");
+        $display("*          answer should be : %d , your answer is : %d        *",golden_inst_addr,inst_addr);
+        $display("-------------------------------------------------------------------");
         repeat(2) @(negedge clk);
         $finish;
 
@@ -286,12 +301,24 @@ task check_ans_task; begin
 
             // lw
             golden_r[rt]=mem[golden_r[rs]+immediate];
+
+            if(golden_r[rs]+immediate<0||golden_r[rs]+immediate>4096)begin
+                
+                $display("Mem_Addr overflow @%d",pat);
+
+            end
             
         end
         else if(opcode==6'd6)begin
 
             // sw
             mem[golden_r[rs]+immediate]=golden_r[rt];
+
+            if(golden_r[rs]+immediate<0||golden_r[rs]+immediate>4096)begin
+                
+                $display("Mem_Addr overflow @%d",pat);
+
+            end
             
         end
         
@@ -325,18 +352,6 @@ task check_ans_task; begin
         end
     end
 
-    // check inst_addr
-    if(inst_addr!==golden_inst_addr)begin    
-        display_fail_task;
-        $display("-------------------------------------------------------------------");
-        $display("*                        PATTERN NO.%4d 	                  *",pat);
-        $display("*                          inst_addr  error 	                       *");
-        $display("*          answer should be : %d , your answer is : %d        *",golden_inst_addr,inst_addr);
-        $display("-------------------------------------------------------------------");
-        repeat(2) @(negedge clk);
-        $finish;
-    end
-
     @(negedge clk);
 
 end
@@ -367,13 +382,13 @@ endtask
 task display_fail_task; begin
 
         $display("\n");
-        $display("        ----------------------------");
-        $display("        --                        --");
-        $display("        --  OOPS!!                --");
-        $display("        --                        --");
-        $display("        --  Simulation Failed!!   --");
-        $display("        --                        --");
-        $display("        ----------------------------");
+        $display("        ----------------------------               ");
+        $display("        --                        --       |\__||  ");
+        $display("        --  OOPS!!                --      / X,X  | ");
+        $display("        --                        --    /_____   | ");
+        $display("        --  \033[0;31mSimulation Failed!!\033[m   --   /^ ^ ^ \\  |");
+        $display("        --                        --  |^ ^ ^ ^ |w| ");
+        $display("        ----------------------------   \\m___m__|_|");
         $display("\n");
 end 
 endtask
@@ -382,13 +397,13 @@ endtask
 task display_pass_task; begin
 
         $display("\n");
-        $display("        ----------------------------");
-        $display("        --                        --");
-        $display("        --  Congratulations !!    --");
-        $display("        --                        --");
-        $display("        --  Simulation PASS!!     --");
-        $display("        --                        --");
-        $display("        ----------------------------");
+        $display("        ----------------------------               ");
+        $display("        --                        --       |\__||  ");
+        $display("        --  Congratulations !!    --      / O.O  | ");
+        $display("        --                        --    /_____   | ");
+        $display("        --  \033[0;32mSimulation PASS!!\033[m     --   /^ ^ ^ \\  |");
+        $display("        --                        --  |^ ^ ^ ^ |w| ");
+        $display("        ----------------------------   \\m___m__|_|");
         $display("\n");
 		repeat(2) @(negedge clk);
 		$finish;
