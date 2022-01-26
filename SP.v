@@ -58,7 +58,11 @@ MUX reg_dst_mux(
 wire [31:0] extend_reslut;
 wire [1:0] extend_ctrl;
 assign extend_ctrl[1] = (opcode == 'h0) && (funct == 'h5);
-assign extend_ctrl[0] = (opcode == 'h3) || (opcode == 'h4);
+assign extend_ctrl[0] = (opcode == 'h3) ||
+						(opcode == 'h4) || 
+						(opcode == 'h5) || 
+						(opcode == 'h7) || 
+						(opcode == 'h8);
 
 EXTEND_CONTROL extend_control(
 	.imm(imm),
@@ -264,8 +268,8 @@ module ADDER (
 	out
 );
 
-input      [31:0] in0, in1;
-output reg [31:0] out;
+input signed      [31:0] in0, in1;
+output reg signed [31:0] out;
 
 always @(*) begin
 	out <= in0 + in1;
